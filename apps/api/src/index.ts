@@ -4,20 +4,24 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
 import { Scalar } from "@scalar/hono-api-reference";
 import Redis from "ioredis";
-import { createMealPlanRouter } from "./modules/meal-plan/router";
-import { createMealPlanService } from "./modules/meal-plan/service";
-import { mealPlanRepository } from "./modules/meal-plan/repository";
-import { mealPlanQueue } from "./queue/meal-plan.queue";
-import { createHealthRouter } from "./routes/health";
-import { errorHandler } from "./middleware/error-handler";
-import { prismaClient } from "./lib/prisma";
-import { env } from "./config/env";
-import { logger } from "./lib/logger";
+import { createMealPlanRouter } from "@/modules/meal-plan/router";
+import { createMealPlanService } from "@/modules/meal-plan/service";
+import { mealPlanRepository } from "@/modules/meal-plan/repository";
+import { mealPlanQueue } from "@/queue/meal-plan.queue";
+import { createChatRouter } from "@/modules/chat/router";
+import { createChatService } from "@/modules/chat/service";
+import { chatRepository } from "@/modules/chat/repository";
+import { createHealthRouter } from "@/routes/health";
+import { errorHandler } from "@/middleware/error-handler";
+import { prismaClient } from "@/lib/prisma";
+import { env } from "@/config/env";
+import { logger } from "@/lib/logger";
 
 const mealPlanService = createMealPlanService(
   mealPlanRepository,
   mealPlanQueue,
 );
+const chatService = createChatService(chatRepository, mealPlanRepository);
 
 const redisPing = new Redis({
   host: env.REDIS_HOST,
@@ -32,6 +36,7 @@ const app = new OpenAPIHono()
   // `/meal-plans/:id/report` redirect (see meal-plan/router.ts) points here.
   .use(`/${env.REPORTS_DIR}/*`, serveStatic({ root: "./" }))
   .route("/meal-plans", createMealPlanRouter(mealPlanService))
+  .route("/meal-plans", createChatRouter(chatService))
   .route(
     "/health",
     createHealthRouter({
