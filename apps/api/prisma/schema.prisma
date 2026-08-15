@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHT
+  MODERATE
+  ACTIVE
+  VERY_ACTIVE
+}
+
+enum Goal {
+  CUT
+  MAINTAIN
+  BULK
+}
+
+enum MealPlanStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum DayStatus {
+  PENDING
+  PASSED
+  FAILED
+  REVISED
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model MealPlanRequest {
+  id                  String        @id @default(cuid())
+  age                 Int
+  gender              Gender
+  weightKg            Float
+  heightCm            Float
+  activityLevel       ActivityLevel
+  goal                Goal
+  dietaryRestrictions String[]
+  allergies           String[]
+  cuisinePreference   String?
+
+  targetCalories Int
+  targetProteinG Int
+  targetCarbsG   Int
+  targetFatG     Int
+
+  status            MealPlanStatus @default(PENDING)
+  failureReason     String?
+  reportUrl         String?
+  reportGeneratedAt DateTime?
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  days      MealPlanDay[]
+  chatMessages ChatMessage[]
+
+  @@index([status])
+  @@map("meal_plan_requests")
+}
+
+model MealPlanDay {
+  id                 String          @id @default(cuid())
+  mealPlanRequestId  String
+  mealPlanRequest    MealPlanRequest @relation(fields: [mealPlanRequestId], references: [id], onDelete: Cascade)
+  dayNumber          Int
+  meals              String
+  estimatedCalories  Int?
+  estimatedProteinG  Int?
+  estimatedCarbsG    Int?
+  estimatedFatG      Int?
+  evaluationStatus   DayStatus       @default(PENDING)
+  evaluationFeedback String?
+  revisionCount      Int             @default(0)
+
+  @@unique([mealPlanRequestId, dayNumber])
+  @@map("meal_plan_days")
+}
+
+model ChatMessage {
+  id                String          @id @default(cuid())
+  mealPlanRequestId String
+  mealPlanRequest   MealPlanRequest @relation(fields: [mealPlanRequestId], references: [id], onDelete: Cascade)
+  role              ChatRole
+  content           String
+  createdAt         DateTime        @default(now())
+
+  @@index([mealPlanRequestId, createdAt])
+  @@map("chat_messages")
+}

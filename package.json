@@ -1,10 +1,11 @@
 {
-  "name": "03-assignment-3-monorepo",
+  "name": "monorepo-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm run --parallel dev",
+    "worker:dev": "pnpm run --filter=api worker:dev"
   },
   "keywords": [],
   "author": "",
