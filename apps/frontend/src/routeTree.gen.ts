@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MealPlansIndexRouteImport } from './routes/meal-plans/index'
+import { Route as MealPlansIdRouteImport } from './routes/meal-plans/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MealPlansIndexRoute = MealPlansIndexRouteImport.update({
+  id: '/meal-plans/',
+  path: '/meal-plans/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MealPlansIdRoute = MealPlansIdRouteImport.update({
+  id: '/meal-plans/$id',
+  path: '/meal-plans/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
+  '/meal-plans/': typeof MealPlansIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
+  '/meal-plans': typeof MealPlansIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
+  '/meal-plans/': typeof MealPlansIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/meal-plans/$id' | '/meal-plans/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/meal-plans/$id' | '/meal-plans'
+  id: '__root__' | '/' | '/meal-plans/$id' | '/meal-plans/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MealPlansIdRoute: typeof MealPlansIdRoute
+  MealPlansIndexRoute: typeof MealPlansIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meal-plans/': {
+      id: '/meal-plans/'
+      path: '/meal-plans'
+      fullPath: '/meal-plans/'
+      preLoaderRoute: typeof MealPlansIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meal-plans/$id': {
+      id: '/meal-plans/$id'
+      path: '/meal-plans/$id'
+      fullPath: '/meal-plans/$id'
+      preLoaderRoute: typeof MealPlansIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MealPlansIdRoute: MealPlansIdRoute,
+  MealPlansIndexRoute: MealPlansIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

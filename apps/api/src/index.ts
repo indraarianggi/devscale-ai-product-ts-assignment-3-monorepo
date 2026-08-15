@@ -36,7 +36,7 @@ const app = new OpenAPIHono()
   // `/meal-plans/:id/report` redirect (see meal-plan/router.ts) points here.
   .use(`/${env.REPORTS_DIR}/*`, serveStatic({ root: "./" }))
   .route("/meal-plans", createMealPlanRouter(mealPlanService))
-  .route("/meal-plans", createChatRouter(chatService))
+  .route("/meal-plans/:id/chat", createChatRouter(chatService))
   .route(
     "/health",
     createHealthRouter({

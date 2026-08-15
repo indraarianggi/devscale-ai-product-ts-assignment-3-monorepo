@@ -290,6 +290,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@anvia/react':
+        specifier: ^0.11.6
+        version: 0.11.6(@anvia/core@0.26.0)(react@19.2.8)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.3.3(vite@8.2.1(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.12)(yaml@2.9.0))
@@ -302,6 +305,9 @@ importers:
       '@tanstack/react-router-devtools':
         specifier: latest
         version: 1.167.1(@tanstack/react-router@1.170.27(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/router-core@1.171.22)(csstype@3.2.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      hono:
+        specifier: ^4.13.2
+        version: 4.13.2
       react:
         specifier: ^19.2.0
         version: 19.2.8
@@ -349,6 +355,12 @@ packages:
     resolution: {integrity: sha512-KIBMf48s0U17NHbIZ5p3TZsr3A8xzS9lFnKZbKXUMzbdAvGI1KhhYmEoibIkvcrPK+17eBgTGUhGiVuNDeuLBg==}
     peerDependencies:
       '@anvia/core': '>=0.7.1 <1.0.0'
+
+  '@anvia/react@0.11.6':
+    resolution: {integrity: sha512-m1mlxuZ9gEJfeDaD8IINJIFUUTl4T15Kh48onDi+ZGH7VVmMWnZmgkOUnomjwM4DteGSOwiQdPPBzkj8jeLxrQ==}
+    peerDependencies:
+      '@anvia/core': '>=0.25.0 <1.0.0'
+      react: '>=18'
 
   '@anvia/server@0.7.6':
     resolution: {integrity: sha512-O/8oyxYbK8gpbsFH3uOy220ierFwz+KkwRhDuWxBFeiYRcDkthxBTVcke3V18dmk4PJHgN5SC/cdb6klkfOu5w==}
@@ -3171,6 +3183,11 @@ snapshots:
       - '@smithy/signature-v4'
       - ws
       - zod
+
+  '@anvia/react@0.11.6(@anvia/core@0.26.0)(react@19.2.8)':
+    dependencies:
+      '@anvia/core': 0.26.0
+      react: 19.2.8
 
   '@anvia/server@0.7.6(@anvia/core@0.26.0)':
     dependencies:
