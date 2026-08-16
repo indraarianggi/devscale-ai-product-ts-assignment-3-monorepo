@@ -10,6 +10,11 @@ services:
       - "65434:5432"
     volumes:
       - third-assignment-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mealplan -d mealplan"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -18,7 +23,75 @@ services:
       - "6381:6379"
     volumes:
       - third-assignment-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: third-assignment-api
+    env_file: .env
+    environment:
+      # Override the host-facing values from .env with the in-network
+      # service names/ports Docker Compose gives each container.
+      DATABASE_URL: postgres://mealplan:mealplan@postgres:5432/mealplan
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 8002
+    ports:
+      - "8002:8002"
+    volumes:
+      - reports:/app/reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    # No fixed container_name — `docker compose up --scale worker=N`
+    # requires letting Compose generate unique names per replica.
+    command: ["node", "dist/worker.js"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://mealplan:mealplan@postgres:5432/mealplan
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - reports:/app/reports
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        # Baked into the static bundle at build time — must be a URL the
+        # *browser* can reach, not an in-network service name. Defaults to
+        # the host-mapped API port for local docker compose use; set
+        # VITE_API_BASE_URL in .env to your public API URL for deployment.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8002}
+    container_name: third-assignment-frontend
+    ports:
+      - "3002:80"
+    depends_on:
+      - api
+    restart: unless-stopped
 
 volumes:
   third-assignment-postgres:
   third-assignment-redis:
+  reports:
